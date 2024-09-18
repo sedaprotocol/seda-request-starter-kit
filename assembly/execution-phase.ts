@@ -3,6 +3,7 @@ import {
   Console,
   Process,
   httpFetch,
+  u128,
 } from "@seda-protocol/as-sdk/assembly";
 
 // API response structure for the price feed
@@ -37,19 +38,26 @@ export function executionPhase(): void {
   );
 
   // Check if the HTTP request was successfully fulfilled.
-  if (response.ok) {
-    // Parse the API response as defined earlier.
-    const result = response.bytes.toJSON<PriceFeedResponse>();
-    
-    // Report the successful result back to the SEDA network.
-    Process.success(Bytes.fromUtf8String(result.price));
-  } else {
+  if (!response.ok) {
     // Handle the case where the HTTP request failed or was rejected.
     Console.error(
       `HTTP Response was rejected: ${response.status.toString()} - ${response.bytes.toUtf8String()}`
     );
-
     // Report the failure to the SEDA network with an error code of 1.
     Process.error(Bytes.fromUtf8String("Error while fetching price feed"));
   }
+
+  // Parse the API response as defined earlier.
+  const data = response.bytes.toJSON<PriceFeedResponse>();
+
+  // Convert to integer (and multiply by 1e6 to avoid losing precision).
+  const priceFloat = f32.parse(data.price);
+  if (isNaN(priceFloat)) {
+    // Report the failure to the SEDA network with an error code of 1.
+    Process.error(Bytes.fromUtf8String(`Error while parsing price data: ${data.price}`));
+  }
+  const result = u128.from(priceFloat * 1000000);
+
+  // Report the successful result back to the SEDA network.
+  Process.success(Bytes.fromNumber<u128>(result));
 }

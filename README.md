@@ -57,11 +57,11 @@ bun run test
 
 Use these key components to create and define your Data Requests. The starter kit provides a base for building Oracle Programs on the SEDA network:
 
-- **`src/index.ts`**: The entry point that coordinates both the execution and tally phases of your Data Request.
+- **`assembly/index.ts`**: The entry point that coordinates both the execution and tally phases of your Data Request.
 
-- **`src/execution-phase.ts`**: Manages the fetching and processing of price data from APIs. This phase involves non-deterministic operations as it can access public data via `http_fetch` and `proxy_http_fetch` calls. Multiple Executor Nodes run this phase, each producing a report that is sent to the SEDA network.
+- **`assembly/execution-phase.ts`**: Manages the fetching and processing of price data from APIs. This phase involves non-deterministic operations as it can access public data via `http_fetch` and `proxy_http_fetch` calls. Multiple Executor Nodes run this phase, each producing a report that is sent to the SEDA network.
 
-- **`src/tally-phase.ts`**: Aggregates results from multiple Executor reports and calculates the final output using consensus data. This phase is deterministic, combining results from Executor Nodes to reach a consensus.
+- **`assembly/tally-phase.ts`**: Aggregates results from multiple Executor reports and calculates the final output using consensus data. This phase is deterministic, combining results from Executor Nodes to reach a consensus.
 
 ### Utilities and Functions
 
