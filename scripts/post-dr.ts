@@ -19,6 +19,7 @@ async function main() {
         drInputs: Buffer.from('eth-usdc'),
         tallyInputs: Buffer.from([]),
         memo: Buffer.from(new Date().toISOString()),
+        gasLimit: 2_500_000,
     }, {});
 
     console.table(result);
