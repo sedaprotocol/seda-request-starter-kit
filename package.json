@@ -20,7 +20,7 @@
     "assemblyscript": "^0.27.29"
   },
   "dependencies": {
-    "@seda-protocol/as-sdk": "^0.0.12",
+    "@seda-protocol/as-sdk": "^0.0.14",
     "@seda-protocol/vm": "^0.0.4",
     "as-bignum": "^0.3.1"
   }
