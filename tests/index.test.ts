@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect, mock } from "bun:test";
 import { file } from "bun";
-import { executeDrWasm, executeTallyWasm } from "@seda-protocol/dev-tools"
+import { testOracleProgramExecution, testOracleProgramTally } from "@seda-protocol/dev-tools"
 import { BigNumber } from 'bignumber.js'
 
 const WASM_PATH = "build/debug.wasm";
@@ -21,10 +21,10 @@ describe("data request execution", () => {
       return new Response('Unknown request');
     });
 
-    const wasmBinary = await file(WASM_PATH).arrayBuffer();
+    const oracleProgram = await file(WASM_PATH).arrayBuffer();
 
-    const vmResult = await executeDrWasm(
-      Buffer.from(wasmBinary),
+    const vmResult = await testOracleProgramExecution(
+      Buffer.from(oracleProgram),
       Buffer.from("eth-usdc"),
       fetchMock
     );
@@ -37,11 +37,11 @@ describe("data request execution", () => {
   });
 
   it('should tally all results in a single data point', async () => {
-    const wasmBinary = await file(WASM_PATH).arrayBuffer();
+    const oracleProgram = await file(WASM_PATH).arrayBuffer();
 
     // Result from the execution test
     let buffer = Buffer.from([0, 33, 43, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-    const vmResult = await executeTallyWasm(Buffer.from(wasmBinary), Buffer.from('tally-inputs'), [{
+    const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [{
       exitCode: 0,
       gasUsed: 0,
       inConsensus: true,

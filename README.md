@@ -24,17 +24,17 @@ A Data Request execution involves two phases executed in a WASM VM:
 2. **Tally Phase**: Aggregates reports from the execution phase using custom logic to determine a final result.
 
 > [!NOTE]
-> This starter kit uses the same binary for both phases, but you can specify different binaries and add branching logic if needed.
+> This starter kit uses the same Oracle Program for both phases, but you can specify different binaries and add branching logic if needed.
 
 ### Building
 
-To build the Data Request binary, run the following (builds using the release profile by default):
+To build the Oracle Program, run the following (builds using the release profile by default):
 
 ```sh
 bun run build
 ```
 
-To build the binary with the debug profile, run:
+To build the Oracle Program with the debug profile, run:
 
 ```sh
 bun run build:debug
@@ -42,7 +42,7 @@ bun run build:debug
 
 ### Local Testing
 
-To test the binary, this project uses `@seda-protocol/vm` and `@seda-protocol/dev-tools`. These tools help run the binary in a local WASM VM and test different scenarios.
+To test the Oracle Program, this project uses `@seda-protocol/vm` and `@seda-protocol/dev-tools`. These tools help run the Oracle Program in a local WASM VM and test different scenarios.
 
 This project uses Bun's built-in test runner, but other JavaScript/TypeScript testing frameworks should also work.
 
@@ -53,9 +53,9 @@ This project uses Bun's built-in test runner, but other JavaScript/TypeScript te
 bun run test
 ```
 
-## Implement your Data Requests
+## Implement your Oracle Program
 
-Use these key components to create and define your Data Requests. The starter kit provides a base for building Oracle Programs on the SEDA network:
+Use these key components to create and define your Oracle Program. The starter kit provides a base for building Oracle Programs on the SEDA network:
 
 - **`assembly/index.ts`**: The entry point that coordinates both the execution and tally phases of your Data Request.
 
@@ -65,7 +65,7 @@ Use these key components to create and define your Data Requests. The starter ki
 
 ### Utilities and Functions
 
-The following are some of the key utilities and functions from the `@seda-protocol/as-sdk/assembly` library used in the example provided in this starter kit. These tools help you build and define your Data Requests. While these are a few important ones, the SDK offers additional utilities to explore:
+The following are some of the key utilities and functions from the `@seda-protocol/as-sdk/assembly` library used in the example provided in this starter kit. These tools help you build and define your Oracle Program. While these are a few important ones, the SDK offers additional utilities to explore:
 
 - **`Process`**: Manages inputs and outputs, allowing interaction with the WASM VM.
 - **`http_fetch`**: Fetches data from public APIs.
@@ -73,15 +73,15 @@ The following are some of the key utilities and functions from the `@seda-protoc
 - **`JSON`**: Facilitates parsing and handling JSON data.
 - **`Bytes`**: Assists in working with byte arrays, useful for encoding and decoding data.
 
-These components and utilities serve as a foundation for developing your Data Request logic. For a complete list of utilities and advanced usage, refer to the official documentation.
+These components and utilities serve as a foundation for developing your Oracle Program logic. For a complete list of utilities and advanced usage, refer to the official documentation.
 
 ## Interacting with SEDA Networks
 
-You can upload Data Requests and interact with the SEDA network using the CLI tools provided by `@seda-protocol/dev-tools`.
+You can upload Oracle Programs and interact with the SEDA network using the CLI tools provided by `@seda-protocol/dev-tools`.
 
-### Uploading a Data Request
+### Uploading an Oracle Program
 
-To upload a Data Request WASM binary, run:
+To upload an Oracle Program binary, run:
 
 ```sh
 bun run deploy
@@ -90,21 +90,21 @@ bun run deploy
 > [!IMPORTANT]  
 > This command requires `RPC_SEDA_ENDPOINT` and `MNEMONIC` environment variables.
 
-Alternatively, you can directly use the CLI to upload a WASM binary and list existing binaries.
+Alternatively, you can directly use the CLI to upload an Oracle Program and list existing binaries.
 
-List existing binaries (requires `RPC_SEDA_ENDPOINT` environment variable):
+List existing Oracle Programs (requires `RPC_SEDA_ENDPOINT` environment variable):
 
 ```sh
 # With .env file
-bunx seda-sdk wasm list
+bunx seda-sdk oracle-program list
 # With flag
-bunx seda-sdk wasm list --rpc https://rpc.devnet.seda.xyz
+bunx seda-sdk oracle-program list --rpc https://rpc.devnet.seda.xyz
 ```
 
-Upload a WASM binary (requires `RPC_SEDA_ENDPOINT` and `MNEMONIC` environment variables):
+Upload an Oracle Program (requires `RPC_SEDA_ENDPOINT` and `MNEMONIC` environment variables):
 
 ```sh
-bunx seda-sdk wasm upload PATH_TO_BUILD
+bunx seda-sdk oracle-program upload PATH_TO_BUILD
 ```
 
 ### Submitting a Data Request
@@ -133,7 +133,7 @@ SEDA_RPC_ENDPOINT=https://rpc.devnet.seda.xyz
 SEDA_MNEMONIC=
 
 # Used for posting data request on the seda chain and configuring the consumer contract
-# You can get this by running `bunx seda-sdk wasm upload PATH_TO_BUILD`
+# You can get this by running `bunx seda-sdk oracle-program upload PATH_TO_BUILD`
 ORACLE_PROGRAM_ID=
 ```
 

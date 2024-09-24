@@ -15,7 +15,7 @@ async function main() {
         consensusOptions: {
             method: 'none'
         },
-        drBinaryId: process.env.ORACLE_PROGRAM_ID,
+        oracleProgramId: process.env.ORACLE_PROGRAM_ID,
         drInputs: Buffer.from('eth-usdc'),
         tallyInputs: Buffer.from([]),
         memo: Buffer.from(new Date().toISOString()),
