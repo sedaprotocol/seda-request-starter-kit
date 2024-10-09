@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@seda-protocol/dev-tools": "^0.0.12",
+    "@seda-protocol/dev-tools": "^0.0.13",
     "@types/bun": "^1.1.6",
     "assemblyscript": "^0.27.29",
     "bignumber.js": "^9.1.2"
