@@ -15,13 +15,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@seda-protocol/dev-tools": "^0.0.13",
+    "@seda-protocol/dev-tools": "^0.0.15",
     "@types/bun": "^1.1.6",
     "assemblyscript": "^0.27.29",
     "bignumber.js": "^9.1.2"
   },
   "dependencies": {
-    "@seda-protocol/as-sdk": "^0.0.15",
+    "@seda-protocol/as-sdk": "^0.0.16",
     "@seda-protocol/vm": "^0.0.4"
   }
 }
