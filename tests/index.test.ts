@@ -3,7 +3,7 @@ import { file } from "bun";
 import { testOracleProgramExecution, testOracleProgramTally } from "@seda-protocol/dev-tools"
 import { BigNumber } from 'bignumber.js'
 
-const WASM_PATH = "build/debug.wasm";
+const WASM_PATH = "target/wasm32-wasip1/release-wasm/oracle-program.wasm";
 
 const fetchMock = mock();
 

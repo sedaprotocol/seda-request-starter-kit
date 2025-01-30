@@ -8,11 +8,12 @@
   SEDA Request Starter Kit
 </h1>
 
-This starter kit helps you create Data Requests (also known as Oracle Programs) on the SEDA network using AssemblyScript. It showcases a basic project setup and serves as a foundation for building more complex projects.
+This starter kit helps you create Data Requests (also known as Oracle Programs) on the SEDA network using Rust. It showcases a basic project setup and serves as a foundation for building more complex projects.
 
 ## Requirements
 
 - **Bun**: Install [Bun](https://bun.sh/) for package management and building.
+- **Rust**: Install [Rust](https://rustup.rs/) for development and building.
 - Alternatively, use the [devcontainer](https://containers.dev/) for a pre-configured environment.
 
 ## Getting Started
@@ -34,12 +35,6 @@ To build the Oracle Program, run the following (builds using the release profile
 bun run build
 ```
 
-To build the Oracle Program with the debug profile, run:
-
-```sh
-bun run build:debug
-```
-
 ### Local Testing
 
 To test the Oracle Program, this project uses `@seda-protocol/vm` and `@seda-protocol/dev-tools`. These tools help run the Oracle Program in a local WASM VM and test different scenarios.
@@ -57,20 +52,18 @@ bun run test
 
 Use these key components to create and define your Oracle Program. The starter kit provides a base for building Oracle Programs on the SEDA network:
 
-- **`assembly/index.ts`**: The entry point that coordinates both the execution and tally phases of your Data Request.
+- **`src/main.rs`**: The entry point that coordinates both the execution and tally phases of your Data Request.
 
-- **`assembly/execution-phase.ts`**: Manages the fetching and processing of price data from APIs. This phase involves non-deterministic operations as it can access public data via `http_fetch` and `proxy_http_fetch` calls. Multiple Executor Nodes run this phase, each producing a report that is sent to the SEDA network.
+- **`src/execution_phase.rs`**: Manages the fetching and processing of price data from APIs. This phase involves non-deterministic operations as it can access public data via `http_fetch` and `proxy_http_fetch` calls. Multiple Executor Nodes run this phase, each producing a report that is sent to the SEDA network.
 
-- **`assembly/tally-phase.ts`**: Aggregates results from multiple Executor reports and calculates the final output using consensus data. This phase is deterministic, combining results from Executor Nodes to reach a consensus.
+- **`src/tally_phase.rs`**: Aggregates results from multiple Executor reports and calculates the final output using consensus data. This phase is deterministic, combining results from Executor Nodes to reach a consensus.
 
 ### Utilities and Functions
 
-The following are some of the key utilities and functions from the `@seda-protocol/as-sdk/assembly` library used in the example provided in this starter kit. These tools help you build and define your Oracle Program. While these are a few important ones, the SDK offers additional utilities to explore:
+The following are some of the key utilities and functions from the `seda-sdk` library used in the example provided in this starter kit. These tools help you build and define your Oracle Program. While these are a few important ones, the SDK offers additional utilities to explore:
 
 - **`Process`**: Manages inputs and outputs, allowing interaction with the WASM VM.
 - **`http_fetch`**: Fetches data from public APIs.
-- **`Console`**: Provides logging capabilities to debug and track the execution of your code.
-- **`JSON`**: Facilitates parsing and handling JSON data.
 - **`Bytes`**: Assists in working with byte arrays, useful for encoding and decoding data.
 
 These components and utilities serve as a foundation for developing your Oracle Program logic. For a complete list of utilities and advanced usage, refer to the official documentation.

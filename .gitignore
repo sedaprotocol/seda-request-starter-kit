@@ -18,3 +18,7 @@ build
 ignition/deployments/chain-31337
 
 .DS_Store
+
+# Added by cargo
+
+/target

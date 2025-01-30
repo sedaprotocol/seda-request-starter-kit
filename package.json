@@ -4,24 +4,22 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "asc ./assembly/index.ts --target release",
-    "build:debug": "asc ./assembly/index.ts --target debug",
-    "deploy": "bun run build && bunx seda-sdk oracle-program upload ./build/release.wasm",
-    "deploy:debug": "bun run build:debug && bunx seda-sdk oracle-program upload ./build/debug.wasm",
+    "build": "make build",
+    "deploy": "bun run build && bunx seda-sdk oracle-program upload ./target/wasm32-wasip1/release-wasm/oracle-program.wasm",
     "post-dr": "bun run ./scripts/post-dr.ts",
-    "test": "bun run build:debug && bun test"
+    "test": "bun run build && bun test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@seda-protocol/dev-tools": "^0.4.0",
-    "@types/bun": "^1.1.6",
-    "assemblyscript": "^0.27.29",
-    "bignumber.js": "^9.1.2"
+    "@seda-protocol/dev-tools": "^0.5.2",
+    "@types/bun": "^1.2.2",
+    "bignumber.js": "^9.1.2",
+    "binaryen": "^122.0.0",
+    "wabt": "^1.0.36"
   },
   "dependencies": {
-    "@seda-protocol/as-sdk": "^0.0.16",
-    "@seda-protocol/vm": "^0.0.4"
+    "@seda-protocol/vm": "^0.0.5"
   }
 }
