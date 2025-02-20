@@ -1,6 +1,6 @@
 {
   "name": "seda-request-starter-kit",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@seda-protocol/dev-tools": "^0.5.2",
+    "@seda-protocol/dev-tools": "^0.5.4",
     "@types/bun": "^1.2.2",
     "bignumber.js": "^9.1.2",
     "binaryen": "^122.0.0",

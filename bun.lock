@@ -7,7 +7,7 @@
         "@seda-protocol/vm": "^0.0.5",
       },
       "devDependencies": {
-        "@seda-protocol/dev-tools": "^0.5.2",
+        "@seda-protocol/dev-tools": "^0.5.4",
         "@types/bun": "^1.2.2",
         "bignumber.js": "^9.1.2",
         "binaryen": "^122.0.0",
@@ -66,9 +66,9 @@
 
     "@protobufjs/utf8": ["@protobufjs/utf8@1.1.0", "", {}, "sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw=="],
 
-    "@seda-protocol/dev-tools": ["@seda-protocol/dev-tools@0.5.2", "", { "dependencies": { "@cosmjs/cosmwasm-stargate": "^0.32.4", "@cosmjs/crypto": "^0.32.4", "@cosmjs/proto-signing": "^0.32.4", "@cosmjs/stargate": "^0.32.4", "@cosmjs/tendermint-rpc": "^0.32.4", "@seda-protocol/proto-messages": "0.4.0-dev.3", "@seda-protocol/utils": "^1.3.0", "@seda-protocol/vm": "^0.0.5", "big.js": "^6.2.1", "dotenv": "^16.3.1", "node-fetch": "^3.3.2", "node-gzip": "^1.1.2", "true-myth": "^7.3.0", "valibot": "^0.42.1" }, "bin": { "seda-sdk": "bin/index.js" } }, "sha512-Vq0WfZ0aloOVYfgtfjmIHOS12TkCk5iK0ymXCc8imuOj2ytk/jouL6NAr40GTHQIzqUO9he8o+a0iWhW+aRbWA=="],
+    "@seda-protocol/dev-tools": ["@seda-protocol/dev-tools@0.5.4", "", { "dependencies": { "@cosmjs/cosmwasm-stargate": "^0.32.4", "@cosmjs/crypto": "^0.32.4", "@cosmjs/proto-signing": "^0.32.4", "@cosmjs/stargate": "^0.32.4", "@cosmjs/tendermint-rpc": "^0.32.4", "@seda-protocol/proto-messages": "0.5.0-dev.7", "@seda-protocol/utils": "^1.3.0", "@seda-protocol/vm": "^0.0.5", "big.js": "^6.2.1", "dotenv": "^16.3.1", "node-fetch": "^3.3.2", "node-gzip": "^1.1.2", "true-myth": "^7.3.0", "valibot": "^0.42.1" }, "bin": { "seda-sdk": "bin/index.js" } }, "sha512-2xhVFhEoUYFbFM1812VlmnhqrHD3XNOcmlAJsYa9idpyhIsZ01G+NCkeZjTMqM79gBJezrRy7fSj0qXBBktoDg=="],
 
-    "@seda-protocol/proto-messages": ["@seda-protocol/proto-messages@0.4.0-dev.3", "", { "dependencies": { "protobufjs": "^7.4.0" } }, "sha512-cXwkMXk/3KdifqyCS1Nfaxxub7gJfehN7r/yNdm7M/W71l+mmsFkWiIRjUKtVsS7dse0YbNZ/sXpWugQ6i2JHg=="],
+    "@seda-protocol/proto-messages": ["@seda-protocol/proto-messages@0.5.0-dev.7", "", { "dependencies": { "protobufjs": "^7.4.0" } }, "sha512-OARR3gAtZydVCL3vo2YHFpgA1GjvSbU0YL7ztG3vTkATpfaRyBNdarLAtapOn9RovbMg4asp5Ta19eXPj8Hluw=="],
 
     "@seda-protocol/utils": ["@seda-protocol/utils@1.3.0", "", { "peerDependencies": { "true-myth": "^8.0.1", "valibot": "^0.42.1" } }, "sha512-6/2qt7+TUQcezWwGHB3QdJZLfd8cRzS58UpdbqzAtRmy4jsM7AR5bcKqNrIjNNBIB/rX29ObaLjT3JK3G3Khkg=="],
 
