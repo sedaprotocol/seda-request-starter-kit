@@ -1,4 +1,4 @@
-import { Signer, buildSigningConfig, postAndAwaitDataRequest } from '@seda-protocol/dev-tools';
+import { PostDataRequestInput, Signer, buildSigningConfig, postAndAwaitDataRequest } from '@seda-protocol/dev-tools';
 
 async function main() {
     if (!process.env.ORACLE_PROGRAM_ID) {
@@ -11,7 +11,7 @@ async function main() {
 
     console.log('Posting and waiting for a result, this may take a lil while..');
 
-    const result = await postAndAwaitDataRequest(signer, {
+    const dataRequestInput: PostDataRequestInput = {
         consensusOptions: {
             method: 'none'
         },
@@ -19,9 +19,14 @@ async function main() {
         execInputs: Buffer.from('eth-usdc'),
         tallyInputs: Buffer.from([]),
         memo: Buffer.from(new Date().toISOString()),
-    }, {});
+    };
 
-    console.table(result);
+    const result = await postAndAwaitDataRequest(signer, dataRequestInput, {});
+
+    console.table({
+        ...result,
+        blockTimestamp: result.blockTimestamp ? result.blockTimestamp.toISOString() : ''
+    });
 }
 
 main();
