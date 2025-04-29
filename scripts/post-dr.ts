@@ -25,6 +25,8 @@ async function main() {
 
     console.table({
         ...result,
+        requestBlockHeight: result.drBlockHeight.toString(),
+        resultBlockHeight: result.blockHeight.toString(),
         blockTimestamp: result.blockTimestamp ? result.blockTimestamp.toISOString() : ''
     });
 }
