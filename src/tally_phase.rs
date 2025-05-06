@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{get_reveals, Process};
+use seda_sdk_rs::{elog, get_reveals, log, Process};
 
 /**
  * Executes the tally phase within the SEDA network.
@@ -22,18 +22,18 @@ pub fn tally_phase() -> Result<()> {
             Err(_err) => {
                 // We should always handle a reveal body with care and not exit/panic when parsing went wrong
                 // It's better to skip that reveal
-                eprintln!("Reveal body could not be casted to u128");
+                elog!("Reveal body could not be casted to u128");
                 continue;
             }
         };
 
         let price = u128::from_le_bytes(price_bytes_slice);
-        println!("Received price: {}", price);
-        
+        log!("Received price: {}", price);
+
         prices.push(price);
     }
 
-    if prices.len() == 0 {
+    if prices.is_empty() {
         // If no valid prices were revealed, report an error indicating no consensus.
         Process::error("No consensus among revealed results".as_bytes());
         return Ok(());
