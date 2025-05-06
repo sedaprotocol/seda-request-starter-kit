@@ -7,9 +7,19 @@
     }
   },
   "features": {
-    "node": {
-        "version": "lts",
-        "nodeGypDependencies": true
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "latest",
+      "profile": "default",
+      "targets": "wasm32-wasip1,wasm32-unknown-unknown",
+      "toolchain": "nightly",
+      "components": "rustfmt"
     }
   },
   "customizations": {
