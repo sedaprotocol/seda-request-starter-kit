@@ -1,4 +1,4 @@
-name: SEDA Oracle Program
+name: Oracle Program
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test Oracle Program
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -39,11 +39,11 @@ jobs:
           sudo cp wabt-1.0.31/bin/wasm-strip /usr/local/bin/
           sudo chmod +x /usr/local/bin/wasm-strip
 
-      - name: Run Clippy
-        run: cargo clippy --all-features --locked -- -D warnings
-
       - name: Check formatting
         run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-features --locked -- -D warnings
 
       - name: Install dependencies
         run: bun install

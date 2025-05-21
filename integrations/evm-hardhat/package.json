@@ -26,6 +26,6 @@
     "solhint": "^5.1.0"
   },
   "dependencies": {
-    "@seda-protocol/evm": "1.0.0-rc.7"
+    "@seda-protocol/evm": "1.0.0-rc.6"
   }
 }

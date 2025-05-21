@@ -1,4 +1,4 @@
-name: EVM Hardhat Integration CI
+name: EVM Hardhat
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test EVM Integration
+    name: Build and Test
     runs-on: ubuntu-latest
 
     defaults:
@@ -43,5 +43,5 @@ jobs:
         run: bun run test
         
       - name: Show results
-        run: echo "All EVM integration checks passed!"
+        run: echo "All EVM Hardhatintegration checks passed!"
 
