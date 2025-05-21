@@ -1,0 +1,47 @@
+name: EVM Hardhat Integration CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'integrations/evm-hardhat/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'integrations/evm-hardhat/**'
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test EVM Integration
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: integrations/evm-hardhat
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run checks
+        run: bun run check
+
+      - name: Compile contracts
+        run: bun run compile
+
+      - name: Run tests
+        run: bun run test
+        
+      - name: Show results
+        run: echo "All EVM integration checks passed!"
+

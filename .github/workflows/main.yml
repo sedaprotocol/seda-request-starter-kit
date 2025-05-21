@@ -1,0 +1,58 @@
+name: SEDA Oracle Program
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test Oracle Program
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+          components: clippy, rustfmt
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install wasm-opt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+
+      - name: Install wasm-strip
+        run: |
+          curl -sSL https://github.com/WebAssembly/wabt/releases/download/1.0.31/wabt-1.0.31-ubuntu.tar.gz | tar -xz
+          sudo cp wabt-1.0.31/bin/wasm-strip /usr/local/bin/
+          sudo chmod +x /usr/local/bin/wasm-strip
+
+      - name: Run Clippy
+        run: cargo clippy --all-features --locked -- -D warnings
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Show results
+        run: echo "All Oracle Program checks passed!"
