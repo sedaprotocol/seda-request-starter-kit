@@ -1,5 +1,5 @@
 {
-  "name": "seda-request-starter-kit",
+  "name": "seda-starter-kit",
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
@@ -29,7 +29,8 @@
         "EditorConfig.EditorConfig",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "dtsvet.vscode-wasm"
+        "dtsvet.vscode-wasm",
+        "NomicFoundation.hardhat-solidity"
       ]
     }
   },

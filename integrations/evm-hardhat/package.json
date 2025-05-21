@@ -1,0 +1,31 @@
+{
+  "name": "seda-hardhat-starter-kit",
+  "version": "1.0.0-rc.2",
+  "description": "",
+  "scripts": {
+    "check": "bun run lint && bun run format:sol",
+    "clean": "rimraf artifacts cache typechain-types",
+    "compile": "hardhat compile",
+    "format:sol": "prettier --check \"**/*.sol\"",
+    "format:sol:fix": "prettier --write \"**/*.sol\"",
+    "lint": "bun run lint:ts && bun run lint:sol",
+    "lint:sol": "solhint 'contracts/**/*.sol' --ignore-path .solhintignore",
+    "lint:sol:fix": "solhint 'contracts/**/*.sol' --fix --ignore-path .solhintignore",
+    "lint:ts": "bunx biome check .",
+    "lint:ts:fix": "bunx biome check --write .",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.5.0",
+    "hardhat": "^2.24.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-solidity": "^2.0.0",
+    "rimraf": "^6.0.1",
+    "solhint": "^5.1.0"
+  },
+  "dependencies": {
+    "@seda-protocol/evm": "1.0.0-rc.7"
+  }
+}

@@ -1,0 +1,90 @@
+<p align="center">
+  <a href="https://seda.xyz/">
+    <img width="90%" alt="seda-protocol" src="https://raw.githubusercontent.com/sedaprotocol/.github/refs/heads/main/images/banner.png">
+  </a>
+</p>
+
+<h1 align="center">
+  SEDA Hardhat Integration
+</h1>
+
+This integration is built on a minimal Hardhat boilerplate, focusing on simplicity to showcase how to interact with the SEDA network. It features a sample consumer contract (PriceFeed) that interacts with the SEDA protocol through a Prover Contract, demonstrating how to create and retrieve data requests on the network.
+
+## Getting Started
+
+Navigate to the `evm-hardhat` directory and install the dependencies:
+
+```sh
+cd integrations/evm-hardhat
+bun install
+```
+
+### Project Structure
+
+This project follows the structure of a typical Hardhat project:
+
+* **contracts/**: Contains the Solidity contracts including PriceFeed.
+* **ignition/**: Ignition deployment modules for deploying contracts.
+* **tasks/**: Hardhat tasks for interacting with the PriceFeed contract.
+* **test/**: Test files for the contracts.
+
+## Compiling and Testing the Contracts
+
+Compile your contracts and run tests to ensure everything works correctly:
+
+```sh
+bun run compile
+bun run test
+```
+
+## Deploying the Contracts
+
+Deploy the `PriceFeed` contract using Hardhat Ignition with a specific SEDA configuration:
+
+```sh
+bunx hardhat ignition deploy ./ignition/modules/PriceFeed.ts
+```
+
+To deploy to a specific network, use the `--network` flag followed by the network name (e.g. baseSepolia, goerli). You can also add the `--verify` flag to automatically verify the contract's source code on the network's block explorer after deployment.
+
+```sh
+bunx hardhat ignition deploy ./ignition/modules/PriceFeed.ts --network baseSepolia --verify
+```
+
+> [!NOTE]
+> The project includes a `seda.config.ts` file that includes SEDA-specific configurations. This file allows you to define and modify configurations such as the addresses of Prover Contracts on different networks.
+
+## Interacting with Deployed Contracts
+
+Use Hardhat tasks specifically designed for interacting with the PriceFeed contract.
+
+**Transmit a Data Request**: Calls the transmit function on PriceFeed to trigger a data request post on the SEDA network.
+
+```sh
+bunx hardhat pricefeed transmit --network baseSepolia
+```
+
+**Fetch Latest Answer**: Calls the latestAnswer function on PriceFeed to get the result of the data request.
+
+```sh
+bunx hardhat pricefeed latest-answer --network baseSepolia
+```
+
+## Environment Variables
+
+Configure the .env file with the necessary variables. Here is an example .env file:
+
+```
+ORACLE_PROGRAM_ID=YOUR_ORACLE_PROGRAM_ID
+EVM_PRIVATE_KEY=YOUR_EVM_PRIVATE_KEY
+BASE_SEPOLIA_ETHERSCAN_API_KEY=YOUR_BASESCAN_API_KEY
+```
+
+## Additional Resources
+
+* [**SEDA Protocol Documentation**](https://docs.seda.xyz): Learn more about how to build on the SEDA network and interact with data requests.
+* [**Hardhat Documentation**](https://hardhat.org/docs): Understand how to use Hardhat for developing, deploying, and testing your contracts.
+
+## License
+
+Contents of this repository are open source under [MIT License](../../LICENSE).
