@@ -5,7 +5,7 @@
 </p>
 
 <h1 align="center">
-  SEDA Request Starter Kit
+  SEDA Starter Kit
 </h1>
 
 This starter kit helps you create Data Requests (also known as Oracle Programs) on the SEDA network using Rust. It showcases a basic project setup and serves as a foundation for building more complex projects.
@@ -129,6 +129,14 @@ SEDA_MNEMONIC=
 # You can get this by running `bunx seda-sdk oracle-program upload PATH_TO_BUILD`
 ORACLE_PROGRAM_ID=
 ```
+
+## Integrations
+
+### EVM (Ethereum Virtual Machine)
+
+This starter kit includes an EVM integration using Hardhat, which allows you to connect your SEDA oracle data requests to EVM-compatible blockchains like Ethereum.
+
+For setup instructions and detailed usage information, see the [EVM Hardhat Integration README](integrations/evm-hardhat/README.md).
 
 ## License
 

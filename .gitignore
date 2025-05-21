@@ -1,24 +1,19 @@
-.env
-node_modules
-build
+# Environment variables
+.env*
+!.env.example
 
-# Hardhat files
-/cache
-/artifacts
+# Dependency directories
+node_modules
+
+# Build files
+build
 
 # TypeChain files
 /typechain
 /typechain-types
 
-# solidity-coverage files
-/coverage
-/coverage.json
-
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
-
+# OS files
 .DS_Store
 
 # Added by cargo
-
 /target
