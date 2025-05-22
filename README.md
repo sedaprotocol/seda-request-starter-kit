@@ -14,6 +14,8 @@ This starter kit helps you create Data Requests (also known as Oracle Programs) 
 
 - **Bun**: Install [Bun](https://bun.sh/) for package management and building.
 - **Rust**: Install [Rust](https://rustup.rs/) for development and building.
+- **WASM**: Install the [`wasm32-wasip1`](https://doc.rust-lang.org/rustc/platform-support/wasm32-wasip1.html) target with `rustup target add wasm32-wasip1` for WASM compilation.
+
 - Alternatively, use the [devcontainer](https://containers.dev/) for a pre-configured environment.
 
 ## Getting Started

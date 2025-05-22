@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createInterface } from 'node:readline';
 import MockSedaCore from '@seda-protocol/evm/artifacts/contracts/mocks/MockSedaCore.sol/MockSedaCore.json';
+import { type BytesLike, isAddress, isBytesLike } from 'ethers';
 import { priceFeedScope } from '.';
 import { getSedaConfig } from './utils';
 import { getOracleProgramId } from './utils';
@@ -10,7 +11,7 @@ import { getOracleProgramId } from './utils';
 interface DeploymentInfo {
   contractAddress: string;
   coreAddress: string;
-  binaryId: string;
+  oracleProgramId: BytesLike;
   timestamp: number;
   deployer: string;
 }
@@ -19,7 +20,7 @@ interface DeploymentInfo {
  * Task: Deploys the PriceFeed contract.
  * Optional parameters:
  * - coreAddress: The SEDA Core contract address
- * - binaryId: The Oracle program ID (binary ID)
+ * - oracleProgramId: The Oracle program ID
  * - force: Force overwrite if deployment exists
  * - verify: Verify contract on the blockchain explorer
  * If parameters are not provided, they are fetched from configuration.
@@ -27,10 +28,10 @@ interface DeploymentInfo {
 priceFeedScope
   .task('deploy', 'Deploys the PriceFeed contract')
   .addOptionalParam('coreAddress', 'The SEDA Core contract address')
-  .addOptionalParam('binaryId', 'The Oracle program ID (binary ID)')
+  .addOptionalParam('oracleProgramId', 'The Oracle program ID')
   .addFlag('force', 'Force overwrite if deployment exists')
   .addFlag('verify', 'Verify contract on the blockchain explorer')
-  .setAction(async ({ coreAddress, binaryId, force, verify }, hre) => {
+  .setAction(async ({ coreAddress, oracleProgramId, force, verify }, hre) => {
     try {
       // Get network-specific parameters if not provided
       if (!coreAddress) {
@@ -52,17 +53,25 @@ priceFeedScope
         }
       }
 
+      if (!isAddress(coreAddress)) {
+        throw new Error(`Invalid SEDA Core address: ${coreAddress}`);
+      }
+
       // Handle Oracle Program ID according to priority
-      if (!binaryId) {
+      if (!oracleProgramId) {
         if (hre.network.name === 'hardhat') {
           // Use ZeroHash for local testing
-          binaryId = hre.ethers.ZeroHash;
-          console.log(`Using ZeroHash as Oracle Program ID for local testing: ${binaryId}`);
+          oracleProgramId = hre.ethers.ZeroHash;
+          console.log(`Using ZeroHash as Oracle Program ID for local testing: ${oracleProgramId}`);
         } else {
           // Use the utility function to get and format the ID
-          binaryId = getOracleProgramId();
-          console.log(`Using Oracle Program ID from environment: ${binaryId}`);
+          oracleProgramId = getOracleProgramId();
+          console.log(`Using Oracle Program ID from environment: ${oracleProgramId}`);
         }
+      }
+
+      if (!isBytesLike(oracleProgramId)) {
+        throw new Error(`Invalid Oracle Program ID: ${oracleProgramId}`);
       }
 
       // Create network key with name and chainId
@@ -98,7 +107,7 @@ priceFeedScope
       // Deploy the PriceFeed contract
       console.log('\nDeploying PriceFeed contract...');
       const PriceFeedFactory = await hre.ethers.getContractFactory('PriceFeed');
-      const priceFeed = await PriceFeedFactory.deploy(coreAddress, binaryId);
+      const priceFeed = await PriceFeedFactory.deploy(coreAddress, oracleProgramId);
 
       await priceFeed.waitForDeployment();
       const priceFeedAddress = await priceFeed.getAddress();
@@ -106,7 +115,7 @@ priceFeedScope
       console.log('\nPriceFeed·deployed·successfully:');
       console.log(`- Contract Address: ${priceFeedAddress}`);
       console.log(`- SEDA Core Address: ${coreAddress}`);
-      console.log(`- Oracle Program ID: ${binaryId}`);
+      console.log(`- Oracle Program ID: ${oracleProgramId}`);
 
       // Get current timestamp for deployment tracking
       const timestamp = Math.floor(Date.now() / 1000);
@@ -115,7 +124,7 @@ priceFeedScope
       const deploymentInfo = {
         contractAddress: priceFeedAddress,
         coreAddress,
-        binaryId,
+        oracleProgramId,
         timestamp,
         deployer: (await hre.ethers.getSigners())[0].address,
       };
@@ -140,7 +149,7 @@ priceFeedScope
         try {
           await hre.run('verify:verify', {
             address: priceFeedAddress,
-            constructorArguments: [coreAddress, binaryId],
+            constructorArguments: [coreAddress, oracleProgramId],
           });
           console.log('Contract verification successful');
         } catch (_error) {

@@ -23,9 +23,9 @@ bun install
 
 This project follows the structure of a typical Hardhat project:
 
-* **contracts/**: Contains the Solidity contracts including PriceFeed.
-* **tasks/**: Hardhat tasks for interacting with the PriceFeed contract.
-* **test/**: Test files for the contracts.
+- **contracts/**: Contains the Solidity contracts including PriceFeed.
+- **tasks/**: Hardhat tasks for interacting with the PriceFeed contract.
+- **test/**: Test files for the contracts.
 
 ## Environment Variables
 
@@ -36,6 +36,9 @@ ORACLE_PROGRAM_ID=YOUR_ORACLE_PROGRAM_ID
 EVM_PRIVATE_KEY=YOUR_EVM_PRIVATE_KEY
 BASE_SEPOLIA_ETHERSCAN_API_KEY=YOUR_BASESCAN_API_KEY
 ```
+
+> [!CAUTION]
+> You must provide a valid EVM private key in your .env file to deploy and interact with contracts. Never share or commit your private key. Use a dedicated testing account with minimal funds.
 
 ## Compiling and Testing the Contracts
 
@@ -48,6 +51,8 @@ bun run test
 
 ## Deploying the Contracts
 
+For your pricefeed you'll first need to build and deploy an Oracle Program to the SEDA network. In the root of this repository you'll find and example and the tools to create and deploy your own Oracle Programs. After deployment, you'll receive an ID that identifies your program on the network. This ID should be set in your `.env` file as `ORACLE_PROGRAM_ID`.
+
 Deploy the `PriceFeed` contract using dedicated Hardhat tasks:
 
 ```sh
@@ -59,7 +64,7 @@ To deploy to a specific network, use the `--network` flag followed by the networ
 By default, the deployment uses environment variables defined in your `.env` file, but you can override these with command-line parameters:
 
 ```sh
-bunx hardhat pricefeed deploy --binary-id YOUR_BINARY_ID --core-address YOUR_CORE_ADDRESS --force
+bunx hardhat pricefeed deploy --oracle-program-id YOUR_ORACLE_PROGRAM_ID --core-address YOUR_CORE_ADDRESS --force
 ```
 
 > [!NOTE]
@@ -83,8 +88,8 @@ bunx hardhat pricefeed latest --network baseSepolia
 
 ## Additional Resources
 
-* [**SEDA Protocol Documentation**](https://docs.seda.xyz): Learn more about how to build on the SEDA network and interact with data requests.
-* [**Hardhat Documentation**](https://hardhat.org/docs): Understand how to use Hardhat for developing, deploying, and testing your contracts.
+- [**SEDA Protocol Documentation**](https://docs.seda.xyz): Learn more about how to build on the SEDA network and interact with data requests.
+- [**Hardhat Documentation**](https://hardhat.org/docs): Understand how to use Hardhat for developing, deploying, and testing your contracts.
 
 ## License
 

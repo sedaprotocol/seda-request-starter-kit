@@ -9,7 +9,7 @@ describe('PriceFeed Contract', () => {
     const [admin] = await ethers.getSigners();
 
     // A Data Request WASM binary ID (mock value)
-    const drBinaryId = ethers.ZeroHash;
+    const oracleProgramId = ethers.ZeroHash;
 
     // Deploy MockSedaCore
     const SedaCore = await ethers.getContractFactoryFromArtifact(MockSedaCore);
@@ -19,7 +19,7 @@ describe('PriceFeed Contract', () => {
 
     // Deploy the PriceFeed contract
     const PriceFeed = await ethers.getContractFactory('PriceFeed');
-    const priceFeed = await PriceFeed.deploy(core.getAddress(), drBinaryId);
+    const priceFeed = await PriceFeed.deploy(core.getAddress(), oracleProgramId);
 
     return { priceFeed, core, admin };
   }
