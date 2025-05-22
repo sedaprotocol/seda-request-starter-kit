@@ -7,7 +7,7 @@ import { type SedaConfig, networkConfigs } from '../seda.config';
 dotenv.config();
 
 /**
- * Helper function to fetch the deployed contract address from the ignition deployment file.
+ * Helper function to fetch the deployed contract address from the deployment file.
  * @param network NetworkConfig object containing network details.
  * @param contractName The full name of the contract (as stored in the deployment JSON file).
  * @returns The deployed contract address as a string.

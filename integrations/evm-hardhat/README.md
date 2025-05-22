@@ -24,9 +24,18 @@ bun install
 This project follows the structure of a typical Hardhat project:
 
 * **contracts/**: Contains the Solidity contracts including PriceFeed.
-* **ignition/**: Ignition deployment modules for deploying contracts.
 * **tasks/**: Hardhat tasks for interacting with the PriceFeed contract.
 * **test/**: Test files for the contracts.
+
+## Environment Variables
+
+Configure the .env file with the necessary variables. Here is an example .env file:
+
+```
+ORACLE_PROGRAM_ID=YOUR_ORACLE_PROGRAM_ID
+EVM_PRIVATE_KEY=YOUR_EVM_PRIVATE_KEY
+BASE_SEPOLIA_ETHERSCAN_API_KEY=YOUR_BASESCAN_API_KEY
+```
 
 ## Compiling and Testing the Contracts
 
@@ -39,20 +48,22 @@ bun run test
 
 ## Deploying the Contracts
 
-Deploy the `PriceFeed` contract using Hardhat Ignition with a specific SEDA configuration:
+Deploy the `PriceFeed` contract using dedicated Hardhat tasks:
 
 ```sh
-bunx hardhat ignition deploy ./ignition/modules/PriceFeed.ts
+bunx hardhat pricefeed deploy --network baseSepolia --verify
 ```
 
 To deploy to a specific network, use the `--network` flag followed by the network name (e.g. baseSepolia, goerli). You can also add the `--verify` flag to automatically verify the contract's source code on the network's block explorer after deployment.
 
+By default, the deployment uses environment variables defined in your `.env` file, but you can override these with command-line parameters:
+
 ```sh
-bunx hardhat ignition deploy ./ignition/modules/PriceFeed.ts --network baseSepolia --verify
+bunx hardhat pricefeed deploy --binary-id YOUR_BINARY_ID --core-address YOUR_CORE_ADDRESS --force
 ```
 
 > [!NOTE]
-> The project includes a `seda.config.ts` file that includes SEDA-specific configurations. This file allows you to define and modify configurations such as the addresses of Prover Contracts on different networks.
+> The project includes a `seda.config.ts` file that contains SEDA-specific configurations including pre-configured core addresses for supported networks. You can modify this file to add support for additional networks or customize existing configurations.
 
 ## Interacting with Deployed Contracts
 
@@ -67,17 +78,7 @@ bunx hardhat pricefeed transmit --network baseSepolia
 **Fetch Latest Answer**: Calls the latestAnswer function on PriceFeed to get the result of the data request.
 
 ```sh
-bunx hardhat pricefeed latest-answer --network baseSepolia
-```
-
-## Environment Variables
-
-Configure the .env file with the necessary variables. Here is an example .env file:
-
-```
-ORACLE_PROGRAM_ID=YOUR_ORACLE_PROGRAM_ID
-EVM_PRIVATE_KEY=YOUR_EVM_PRIVATE_KEY
-BASE_SEPOLIA_ETHERSCAN_API_KEY=YOUR_BASESCAN_API_KEY
+bunx hardhat pricefeed latest --network baseSepolia
 ```
 
 ## Additional Resources

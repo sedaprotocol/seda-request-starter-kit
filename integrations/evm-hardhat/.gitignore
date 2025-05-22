@@ -14,5 +14,5 @@ node_modules
 /coverage
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
+# Default folder for deployments against a local node
 /deployments/*
