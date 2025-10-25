@@ -70,6 +70,15 @@ By default, the deployment uses environment variables defined in your `.env` fil
 > [!NOTE]
 > The project includes a `seda.config.ts` file that contains SEDA-specific configurations including pre-configured core addresses for supported networks. You can modify this file to add support for additional networks or customize existing configurations.
 
+#### 3.1. Verify the deployed PriceFeed contract
+
+Note Mario: with the `--verify` on the initial deployment every single one failed to verify. But when I did verification in an isolated manner it succeeded. To discuss further.
+
+```sh
+bunx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_ARG_1> <CONSTRUCTOR_ARG_2>
+```
+
+
 ### 4. Interact with Your Contract
 
 **Create a Data Request:**

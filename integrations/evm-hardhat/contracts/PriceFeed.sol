@@ -39,7 +39,7 @@ contract PriceFeed {
     }
 
     /**
-     * @notice Creates a new ETH-USDC price request on the SEDA network
+     * @notice Creates a new EVAA Protocol price request on the SEDA network
      * @dev Demonstrates how to structure and send a request to SEDA
      * @param requestFee The fee for the request
      * @param resultFee The fee for the result
@@ -54,7 +54,7 @@ contract PriceFeed {
             50000000000000, // execGasLimit (within uint64 range)
             20000000000000, // tallyGasLimit (within uint64 range)
             1, // replicationFactor (number of required DR executors)
-            bytes("eth-usdc"), // execInputs (Inputs for Execution WASM)
+            bytes("evaa-protocol"), // execInputs (Inputs for Execution WASM)
             hex"00", // tallyInputs
             hex"00", // consensusFilter (set to `None`)
             abi.encodePacked(block.number) // memo (Additional public info)
