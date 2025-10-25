@@ -1,6 +1,7 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, http_fetch, log, Process};
+use seda_sdk_rs::{elog, http_fetch, log, Process, HttpFetchOptions};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // Binance API response structure
 #[derive(Serialize, Deserialize)]
@@ -80,16 +81,42 @@ fn fetch_binance_price(symbol: &str) -> Result<f32> {
  * 
  * Uses the simple/price endpoint which returns: {"token-id":{"usd":123.45}}
  */
-fn fetch_coingecko_price(token_id: &str) -> Result<f32> {
+fn fetch_coingecko_price(token_input: &str) -> Result<f32> {
+    // Check if API key is provided (format: "token-id:api-key")
+    let (token_id, api_key_opt) = if let Some(colon_pos) = token_input.rfind(':') {
+        let token = &token_input[..colon_pos];
+        let key = &token_input[colon_pos + 1..];
+        (token, Some(key))
+    } else {
+        (token_input, None)
+    };
+    
     log!("Fetching CoinGecko price for: {}", token_id);
 
-    let response = http_fetch(
-        format!(
+    // Build URL and headers based on whether we have Pro API key
+    let (url, options) = if let Some(api_key) = api_key_opt {
+        log!("Using CoinGecko Pro API");
+        let url = format!(
+            "https://pro-api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=usd",
+            token_id.to_lowercase()
+        );
+        let mut headers = BTreeMap::new();
+        headers.insert("x-cg-pro-api-key".to_string(), api_key.to_string());
+        let options = HttpFetchOptions {
+            headers,
+            ..Default::default()
+        };
+        (url, Some(options))
+    } else {
+        log!("Using CoinGecko Free API");
+        let url = format!(
             "https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=usd",
             token_id.to_lowercase()
-        ),
-        None,
-    );
+        );
+        (url, None)
+    };
+
+    let response = http_fetch(url, options);
 
     if !response.is_ok() {
         elog!(
