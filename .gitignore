@@ -17,3 +17,5 @@ build
 
 # Added by cargo
 /target
+
+*_*.md

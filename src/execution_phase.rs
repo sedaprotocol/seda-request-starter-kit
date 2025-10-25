@@ -2,66 +2,117 @@ use anyhow::Result;
 use seda_sdk_rs::{elog, http_fetch, log, Process};
 use serde::{Deserialize, Serialize};
 
+// Binance API response structure
 #[derive(Serialize, Deserialize)]
-struct PriceFeedResponse {
+struct BinancePriceResponse {
     price: String,
+}
+
+// CoinGecko Simple Price API response structure
+// Example: {"evaa-protocol":{"usd":11.34}}
+#[derive(Serialize, Deserialize)]
+struct CoinGeckoSimplePrice {
+    usd: f64,
 }
 
 /**
  * Executes the data request phase within the SEDA network.
- * This phase is responsible for fetching non-deterministic data (e.g., price of an asset pair)
- * from an external source such as a price feed API. The input specifies the asset pair to fetch.
+ * 
+ * Supported input formats:
+ * - "binance:ETHUSDC" or "binance:BTCUSDT" - Fetches from Binance API (no separator needed)
+ * - Any other input - Fetches from CoinGecko Simple Price API (e.g., "evaa-protocol", "bitcoin")
+ * 
+ * Examples:
+ * - "binance:ETHUSDC" -> Binance
+ * - "evaa-protocol" -> CoinGecko
+ * - "bitcoin" -> CoinGecko
  */
 pub fn execution_phase() -> Result<()> {
-    // Retrieve the input parameters for the data request (DR).
-    // Expected to be in the format "symbolA-symbolB" (e.g., "BTC-USDT").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
+    log!("Fetching price for: {}", dr_inputs_raw);
 
-    // Log the asset pair being fetched as part of the Execution Standard Out.
-    log!("Fetching price for pair: {}", dr_inputs_raw);
+    let price = if let Some(symbol) = dr_inputs_raw.strip_prefix("binance:") {
+        fetch_binance_price(symbol)?
+    } else {
+        fetch_coingecko_price(&dr_inputs_raw)?
+    };
 
-    // Split the input string into symbolA and symbolB.
-    // Example: "ETH-USDC" will be split into "ETH" and "USDC".
-    let dr_inputs: Vec<&str> = dr_inputs_raw.split("-").collect();
-    let symbol_a = dr_inputs.first().expect("format should be tokenA-tokenB");
-    let symbol_b = dr_inputs.get(1).expect("format should be tokenA-tokenB");
+    log!("Fetched price: {}", price);
 
+    // Convert to integer (multiply by 1e6 to maintain 6 decimal places precision)
+    let result = (price * 1000000f32) as u128;
+    log!("Reporting: {}", result);
+
+    Process::success(&result.to_le_bytes());
+    Ok(())
+}
+
+/**
+ * Fetches price from Binance API
+ * Input: Trading pair symbol without separator (e.g., "ETHUSDC", "BTCUSDT")
+ */
+fn fetch_binance_price(symbol: &str) -> Result<f32> {
     let response = http_fetch(
         format!(
-            "https://api.binance.com/api/v3/ticker/price?symbol={}{}",
-            symbol_a.to_uppercase(),
-            symbol_b.to_uppercase()
+            "https://api.binance.com/api/v3/ticker/price?symbol={}",
+            symbol.to_uppercase()
         ),
         None,
     );
 
-    // Check if the HTTP request was successfully fulfilled.
     if !response.is_ok() {
-        // Handle the case where the HTTP request failed or was rejected.
         elog!(
-            "HTTP Response was rejected: {} - {}",
+            "Binance API error: {} - {}",
             response.status,
             String::from_utf8(response.bytes)?
         );
-
-        // Report the failure to the SEDA network with an error code of 1.
-        Process::error("Error while fetching price feed".as_bytes());
-
-        return Ok(());
+        Process::error("Error fetching from Binance API".as_bytes());
+        return Err(anyhow::anyhow!("Binance API request failed"));
     }
 
-    // Parse the API response as defined earlier.
-    let data = serde_json::from_slice::<PriceFeedResponse>(&response.bytes)?;
+    let data = serde_json::from_slice::<BinancePriceResponse>(&response.bytes)?;
+    Ok(data.price.parse()?)
+}
 
-    // Convert to integer (and multiply by 1e6 to avoid losing precision).
-    let price: f32 = data.price.parse()?;
-    log!("Fetched price: {}", price);
+/**
+ * Fetches price from CoinGecko Simple Price API
+ * Input: Token ID as listed on CoinGecko (e.g., "evaa-protocol", "bitcoin", "ethereum")
+ * 
+ * Uses the simple/price endpoint which returns: {"token-id":{"usd":123.45}}
+ */
+fn fetch_coingecko_price(token_id: &str) -> Result<f32> {
+    log!("Fetching CoinGecko price for: {}", token_id);
 
-    let result = (price * 1000000f32) as u128;
-    log!("Reporting: {}", result);
+    let response = http_fetch(
+        format!(
+            "https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=usd",
+            token_id.to_lowercase()
+        ),
+        None,
+    );
 
-    // Report the successful result back to the SEDA network.
-    Process::success(&result.to_le_bytes());
+    if !response.is_ok() {
+        elog!(
+            "CoinGecko API error: {} - {}",
+            response.status,
+            String::from_utf8(response.bytes.clone())?
+        );
+        Process::error("Error fetching from CoinGecko API".as_bytes());
+        return Err(anyhow::anyhow!("CoinGecko API request failed"));
+    }
 
-    Ok(())
+    // Parse response: {"token-id":{"usd":123.45}}
+    let response_json: serde_json::Value = serde_json::from_slice(&response.bytes)?;
+    
+    // Get the token object
+    let token_data = response_json.get(token_id)
+        .ok_or_else(|| {
+            elog!("Token '{}' not found in CoinGecko response", token_id);
+            anyhow::anyhow!("Token not found")
+        })?;
+    
+    // Get the USD price
+    let price_data: CoinGeckoSimplePrice = serde_json::from_value(token_data.clone())?;
+    
+    Ok(price_data.usd as f32)
 }
