@@ -1,73 +1,99 @@
 import { priceFeedScope } from '.';
 import { getDeployedContract } from './utils';
 
-// Default fees in ETH
-const DEFAULT_FEE = '0.0001';
-
 /**
- * Task: Calls the transmit function on the PriceFeed contract.
- * Optional parameters:
- * - contract: PriceFeed contract address
- * - requestFee: Fee for data request (in ETH)
- * - resultFee: Fee for result processing (in ETH)
- * - batchFee: Fee for batch operations (in ETH)
- *
- * If parameters are not provided, default values are used.
+ * Hardhat task to submit a price request to the SEDA network
+ * 
+ * Supports two modes:
+ * - Simple mode: transmit(token) with zero fees
+ * - Advanced mode: transmit(token, fees...) with custom fees
+ * 
+ * @param contract - Optional PriceFeed contract address
+ * @param token - Token ID to request (default: "evaa-protocol")
+ * @param requestFee - Optional request fee (triggers advanced mode)
+ * @param resultFee - Optional result fee (triggers advanced mode)
+ * @param batchFee - Optional batch fee (triggers advanced mode)
  */
 priceFeedScope
-  .task('transmit', 'Calls the transmit function on the PriceFeed contract')
+  .task('transmit', 'Submit a price request to SEDA network')
   .addOptionalParam('contract', 'The PriceFeed contract address')
-  .addOptionalParam('requestFee', 'Fee for data request (in ETH)', DEFAULT_FEE)
-  .addOptionalParam('resultFee', 'Fee for result processing (in ETH)', DEFAULT_FEE)
-  .addOptionalParam('batchFee', 'Fee for batch operations (in ETH)', DEFAULT_FEE)
-  .setAction(async ({ contract, requestFee, resultFee, batchFee }, hre) => {
+  .addOptionalParam('token', 'Token ID to request', 'evaa-protocol')
+  .addOptionalParam('requestFee', 'Request fee in ETH (enables advanced mode)')
+  .addOptionalParam('resultFee', 'Result fee in ETH (enables advanced mode)')
+  .addOptionalParam('batchFee', 'Batch fee in ETH (enables advanced mode)')
+  .setAction(async ({ contract, token, requestFee, resultFee, batchFee }, hre) => {
     try {
-      // Fetch the address from previous deployments if not provided
       let priceFeedAddress = contract;
       if (!priceFeedAddress) {
-        console.log('No contract address specified, fetching from previous deployments...');
         priceFeedAddress = getDeployedContract(hre.network, 'PriceFeed');
-        console.log('Contract found:', priceFeedAddress);
       }
 
-      // Parse the fee values
-      const parsedRequestFee = hre.ethers.parseEther(requestFee);
-      const parsedResultFee = hre.ethers.parseEther(resultFee);
-      const parsedBatchFee = hre.ethers.parseEther(batchFee);
-
-      // Calculate total value for the transaction
-      const totalValue = parsedRequestFee + parsedResultFee + parsedBatchFee;
-
-      // Get the PriceFeed contract instance
       const priceFeed = await hre.ethers.getContractAt('PriceFeed', priceFeedAddress);
+      const useAdvancedMode = requestFee !== undefined || resultFee !== undefined || batchFee !== undefined;
 
-      // Call the transmit function
-      console.log(`\nCalling transmit() on PriceFeed at ${priceFeedAddress}...\n`);
-      console.log(`Fees (ETH):
-- Request Fee: ${requestFee}
-- Result Fee: ${resultFee}
-- Batch Fee: ${batchFee}
-- Total: ${hre.ethers.formatEther(totalValue)}\n`);
+      let receipt;
 
-      const tx = await priceFeed.transmit(parsedRequestFee, parsedResultFee, parsedBatchFee, { value: totalValue });
+      if (useAdvancedMode) {
+        const parsedRequestFee = hre.ethers.parseEther(requestFee || '0');
+        const parsedResultFee = hre.ethers.parseEther(resultFee || '0');
+        const parsedBatchFee = hre.ethers.parseEther(batchFee || '0');
+        const totalValue = parsedRequestFee + parsedResultFee + parsedBatchFee;
 
-      // Wait for the transaction
-      const receipt = await tx.wait();
+        console.log('\n' + '='.repeat(63));
+        console.log(`TRANSMIT [ADVANCED] - ${token}`);
+        console.log('='.repeat(63));
+        console.log(`Request Fee:  ${requestFee || '0'} ETH`);
+        console.log(`Result Fee:   ${resultFee || '0'} ETH`);
+        console.log(`Batch Fee:    ${batchFee || '0'} ETH`);
+        console.log(`Total:        ${hre.ethers.formatEther(totalValue)} ETH`);
+        console.log('='.repeat(63) + '\n');
+
+        const tx = await priceFeed['transmit(string,uint256,uint256,uint256)'](
+          token,
+          parsedRequestFee,
+          parsedResultFee,
+          parsedBatchFee,
+          { value: totalValue }
+        );
+
+        receipt = await tx.wait();
+      } else {
+        console.log('\n' + '='.repeat(63));
+        console.log(`TRANSMIT [SIMPLE] - ${token}`);
+        console.log('='.repeat(63));
+        console.log(`Fees: Zero`);
+        console.log('='.repeat(63) + '\n');
+
+        const tx = await priceFeed['transmit(string)'](token);
+        receipt = await tx.wait();
+      }
+
       if (!receipt) {
-        console.log('Transaction failed - no receipt received');
+        console.error('Transaction failed - no receipt received\n');
         return;
       }
-      console.log(`Request submitted successfully!`);
 
-      // Find request ID in event logs
-      const requestPostedLog = receipt.logs.find((log) => log.topics[0] === hre.ethers.id('RequestPosted(bytes32)'));
-      if (requestPostedLog) {
-        const requestId = requestPostedLog.topics[1];
+      console.log('Transaction confirmed\n');
+
+      // Extract request ID from events
+      const priceRequestedTopic = hre.ethers.id('PriceRequested(bytes32,string,uint256)');
+      const priceRequestedLog = receipt.logs.find((log: any) => log.topics[0] === priceRequestedTopic);
+      
+      if (priceRequestedLog) {
+        const requestId = priceRequestedLog.topics[1];
         console.log(`Request ID: ${requestId}`);
-      } else {
-        console.log('Transaction successful but could not extract request ID');
+        console.log(`Token:      ${token}\n`);
+        console.log(`Processing time: ~30-60 seconds`);
+        console.log(`Check status: bunx hardhat pricefeed status --network ${hre.network.name}\n`);
       }
-    } catch (error) {
-      console.error('An error occurred during the transmit function:', error);
+
+    } catch (error: any) {
+      console.error('\nError:', error.message || error);
+      
+      if (error.message?.includes('InsufficientFees')) {
+        console.error('Insufficient fees. Ensure msg.value >= sum of all fees\n');
+      } else if (error.message?.includes('InvalidToken')) {
+        console.error('Invalid token. Token ID cannot be empty\n');
+      }
     }
   });

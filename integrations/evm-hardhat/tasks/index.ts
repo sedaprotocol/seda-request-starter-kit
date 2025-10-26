@@ -6,5 +6,8 @@ import { scope } from 'hardhat/config';
 export const priceFeedScope = scope('pricefeed', 'Interact with the PriceFeed contract');
 
 import './deploy';
+import './dryrun';
+import './fullresult';
 import './latest';
+import './status';
 import './transmit';

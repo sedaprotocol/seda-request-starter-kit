@@ -23,6 +23,9 @@ contract PriceFeed is SedaDefaults {
     /// @notice ID of the most recent request
     bytes32 public requestId;
 
+    /// @notice Emitted when a new price request is submitted
+    event PriceRequested(bytes32 indexed requestId, string token, uint256 timestamp);
+
     /// @notice Thrown when trying to fetch results before any request is transmitted
     error RequestNotTransmitted();
 
@@ -36,26 +39,161 @@ contract PriceFeed is SedaDefaults {
     }
 
     /**
-     * @notice Creates a new EVAA Protocol price request on the SEDA network
-     * @dev Demonstrates how to structure and send a request to SEDA
-     * @param requestFee The fee for the request
-     * @param resultFee The fee for the result
-     * @param batchFee The fee for the batch
+     * @notice DRY-RUN: Simulate transmit without executing
+     * @param token Token ID to request (e.g., "bitcoin", "ethereum", "evaa-protocol")
+     * @return canSubmit Whether the request can be submitted
+     * @return estimatedCost Total ETH cost (gas estimate + fees)
+     * @return warnings Array of warning messages
+     * @dev Use this to debug why transmit might fail before spending gas
+     */
+    function dryRun(string calldata token) 
+        external 
+        view 
+        returns (
+            bool canSubmit,
+            uint256 estimatedCost,
+            string[] memory warnings
+        ) 
+    {
+        warnings = new string[](5);
+        uint256 warningCount = 0;
+        
+        // Validate token input
+        (bool valid, string memory reason) = validateRequest(bytes(token));
+        if (!valid) {
+            warnings[warningCount++] = reason;
+            canSubmit = false;
+            
+            // Resize warnings array
+            assembly {
+                mstore(warnings, warningCount)
+            }
+            return (canSubmit, 0, warnings);
+        }
+        
+        // Check Oracle Program ID
+        if (ORACLE_PROGRAM_ID == bytes32(0)) {
+            warnings[warningCount++] = "Oracle Program ID not configured";
+            canSubmit = false;
+            
+            assembly {
+                mstore(warnings, warningCount)
+            }
+            return (canSubmit, 0, warnings);
+        }
+        
+        // Estimate cost (gas + fees)
+        uint256 gasEstimate = 300000; // Typical gas for transmit
+        uint256 gasPrice = tx.gasprice > 0 ? tx.gasprice : 1 gwei;
+        uint256 feeEstimate = calculateRequiredFee(
+            DEFAULT_REQUEST_FEE,
+            DEFAULT_RESULT_FEE,
+            DEFAULT_BATCH_FEE
+        );
+        estimatedCost = (gasEstimate * gasPrice) + feeEstimate;
+        
+        // Check balance (if msg.sender is not address(0))
+        if (msg.sender != address(0) && msg.sender.balance < estimatedCost) {
+            warnings[warningCount++] = "Insufficient balance for transaction";
+        }
+        
+        // Check if token string is too long
+        if (bytes(token).length > 256) {
+            warnings[warningCount++] = "Token ID too long (max 256 chars)";
+        }
+        
+        canSubmit = (warningCount == 0);
+        
+        // Resize warnings array
+        assembly {
+            mstore(warnings, warningCount)
+        }
+    }
+
+    /**
+     * @notice Simple transmit with custom token and zero fees
+     * @param token Token ID to request (e.g., "bitcoin", "ethereum", "evaa-protocol")
+     * @return The ID of the created request
+     * @dev Perfect for testing - uses default zero fees
+     */
+    function transmit(string calldata token) external returns (bytes32) {
+        return _transmit(token, DEFAULT_REQUEST_FEE, DEFAULT_RESULT_FEE, DEFAULT_BATCH_FEE);
+    }
+
+    /**
+     * @notice Advanced transmit with full control over fees
+     * @param token Token ID to request
+     * @param requestFee Fee for request submission
+     * @param resultFee Fee for result submission
+     * @param batchFee Fee for batch processing
+     * @return The ID of the created request
+     * @dev For production use with custom fee structure
+     */
+    function transmit(
+        string calldata token,
+        uint256 requestFee,
+        uint256 resultFee,
+        uint256 batchFee
+    ) external payable returns (bytes32) {
+        uint256 requiredFee = calculateRequiredFee(requestFee, resultFee, batchFee);
+        if (msg.value < requiredFee) {
+            revert InsufficientFees(msg.value, requiredFee);
+        }
+        
+        return _transmit(token, requestFee, resultFee, batchFee);
+    }
+
+    /**
+     * @notice Internal transmit logic
+     * @param token Token ID to request
+     * @param requestFee Fee for request submission
+     * @param resultFee Fee for result submission
+     * @param batchFee Fee for batch processing
      * @return The ID of the created request
      */
-    function transmit(uint256 requestFee, uint256 resultFee, uint256 batchFee) external payable returns (bytes32) {
-        string memory execInput = "evaa-protocol";
-        SedaDataTypes.RequestInputs memory inputs = buildRequestInputs(bytes(execInput));
+    function _transmit(
+        string memory token,
+        uint256 requestFee,
+        uint256 resultFee,
+        uint256 batchFee
+    ) internal returns (bytes32) {
+        // Validate before submitting
+        (bool valid, string memory reason) = validateRequest(bytes(token));
+        if (!valid) {
+            revert InvalidToken(token, reason);
+        }
 
-        // Pass the msg.value as fees to the SEDA core
+        // Build and submit request
+        SedaDataTypes.RequestInputs memory inputs = buildRequestInputs(bytes(token));
         requestId = SEDA_CORE.postRequest{value: msg.value}(inputs, requestFee, resultFee, batchFee);
+
+        emit PriceRequested(requestId, token, block.timestamp);
+
         return requestId;
     }
 
     /**
+     * @notice Check if result is ready without reverting
+     * @return ready Whether result is available
+     * @return consensusReached Whether executors agreed on the result
+     * @dev Unlike latestAnswer(), this won't revert if no result exists
+     */
+    function isResultReady() public view returns (bool ready, bool consensusReached) {
+        if (requestId == bytes32(0)) {
+            return (false, false);
+        }
+        
+        try SEDA_CORE.getResult(requestId) returns (SedaDataTypes.Result memory result) {
+            return (true, result.consensus && result.exitCode == 0);
+        } catch {
+            return (false, false);
+        }
+    }
+
+    /**
      * @notice Retrieves the result of the latest request
-     * @dev Shows how to fetch and interpret SEDA request results
      * @return The price as uint128, or 0 if no consensus was reached
+     * @dev Reverts if no request has been submitted
      */
     function latestAnswer() public view returns (uint128) {
         if (requestId == bytes32(0)) revert RequestNotTransmitted();
@@ -67,5 +205,15 @@ contract PriceFeed is SedaDefaults {
         }
 
         return 0;
+    }
+
+    /**
+     * @notice Get full result details for debugging
+     * @return result The complete Result struct from SEDA
+     * @dev Shows ALL fields including gas used, timestamps, consensus, exit code, etc.
+     */
+    function getFullResult() external view returns (SedaDataTypes.Result memory result) {
+        if (requestId == bytes32(0)) revert RequestNotTransmitted();
+        return SEDA_CORE.getResult(requestId);
     }
 }
