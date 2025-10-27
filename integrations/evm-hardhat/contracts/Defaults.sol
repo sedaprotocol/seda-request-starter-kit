@@ -46,19 +46,22 @@ abstract contract SedaDefaults {
      * @return inputs The configured RequestInputs struct
      * @dev Override this function if you need different gas limits or replication factors
      */
-    function buildRequestInputs(bytes memory execInputs) internal view virtual returns (SedaDataTypes.RequestInputs memory) {
-        return SedaDataTypes.RequestInputs({
-            execProgramId: ORACLE_PROGRAM_ID,
-            tallyProgramId: ORACLE_PROGRAM_ID,
-            gasPrice: DEFAULT_GAS_PRICE,
-            execGasLimit: DEFAULT_EXEC_GAS_LIMIT,
-            tallyGasLimit: DEFAULT_TALLY_GAS_LIMIT,
-            replicationFactor: DEFAULT_REPLICATION_FACTOR,
-            execInputs: execInputs,
-            tallyInputs: hex"00",
-            consensusFilter: hex"00",
-            memo: abi.encodePacked(block.number)
-        });
+    function buildRequestInputs(
+        bytes memory execInputs
+    ) internal view virtual returns (SedaDataTypes.RequestInputs memory) {
+        return
+            SedaDataTypes.RequestInputs({
+                execProgramId: ORACLE_PROGRAM_ID,
+                tallyProgramId: ORACLE_PROGRAM_ID,
+                gasPrice: DEFAULT_GAS_PRICE,
+                execGasLimit: DEFAULT_EXEC_GAS_LIMIT,
+                tallyGasLimit: DEFAULT_TALLY_GAS_LIMIT,
+                replicationFactor: DEFAULT_REPLICATION_FACTOR,
+                execInputs: execInputs,
+                tallyInputs: hex"00",
+                consensusFilter: hex"00",
+                memo: abi.encodePacked(block.number)
+            });
     }
 
     // TODO: Should we leave a more complex example with two oracles and consensus filter?
@@ -102,13 +105,13 @@ abstract contract SedaDefaults {
     function formatPrice(uint128 rawPrice) public pure returns (string memory) {
         uint256 dollars = rawPrice / 1_000_000;
         uint256 cents = (rawPrice % 1_000_000) / 10_000;
-        
+
         // Format cents to always show 2 digits
         string memory centsStr = uint2str(cents);
         if (cents < 10) {
             centsStr = string(abi.encodePacked("0", centsStr));
         }
-        
+
         return string(abi.encodePacked(uint2str(dollars), ".", centsStr, " USD"));
     }
 
@@ -121,23 +124,23 @@ abstract contract SedaDefaults {
         if (_i == 0) {
             return "0";
         }
-        
+
         uint256 j = _i;
         uint256 length;
         while (j != 0) {
             length++;
             j /= 10;
         }
-        
+
         bytes memory bstr = new bytes(length);
         uint256 k = length;
         j = _i;
-        
+
         while (j != 0) {
-            bstr[--k] = bytes1(uint8(48 + j % 10));
+            bstr[--k] = bytes1(uint8(48 + (j % 10)));
             j /= 10;
         }
-        
+
         str = string(bstr);
     }
 }

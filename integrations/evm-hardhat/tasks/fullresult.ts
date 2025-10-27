@@ -3,10 +3,10 @@ import { getDeployedContract } from './utils';
 
 /**
  * Hardhat task to retrieve complete result details for debugging
- * 
+ *
  * Displays all fields from the SEDA Result struct including consensus,
  * exit code, gas usage, timestamps, and raw result data.
- * 
+ *
  * @param contract - Optional PriceFeed contract address
  */
 priceFeedScope
@@ -22,7 +22,7 @@ priceFeedScope
       const priceFeed = await hre.ethers.getContractAt('PriceFeed', priceFeedAddress);
       const result = await priceFeed.getFullResult();
 
-      console.log('\n' + '='.repeat(63));
+      console.log(`\n${'='.repeat(63)}`);
       console.log('FULL RESULT DETAILS');
       console.log('='.repeat(63));
 
@@ -31,7 +31,7 @@ priceFeedScope
       console.log(`  Consensus:    ${result.consensus}`);
       console.log(`  Exit Code:    ${result.exitCode}`);
       console.log(`  Raw (hex):    ${hre.ethers.hexlify(result.result)}`);
-      
+
       // Parse price if available
       if (result.result.length >= 16) {
         const resultBytes = hre.ethers.hexlify(result.result);
@@ -60,10 +60,10 @@ priceFeedScope
       console.log(`  Payback:      ${hre.ethers.hexlify(result.paybackAddress)}`);
       console.log(`  Payload:      ${hre.ethers.hexlify(result.sedaPayload)}`);
 
-      console.log('\n' + '='.repeat(63));
+      console.log(`\n${'='.repeat(63)}`);
 
       // Status interpretation
-      if (result.consensus && result.exitCode === 0) {
+      if (result.consensus && result.exitCode === 0n) {
         console.log('Status: SUCCESS - Oracle executed and reached consensus');
       } else if (!result.consensus) {
         console.log('Status: NO CONSENSUS - Executors did not agree');
@@ -71,17 +71,15 @@ priceFeedScope
         console.log(`Status: ERROR - Exit code ${result.exitCode}`);
       }
 
-      console.log('='.repeat(63) + '\n');
+      console.log(`${'='.repeat(63)}\n`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('\nError:', errorMessage);
 
-    } catch (error: any) {
-      console.error('\nError:', error.message || error);
-      
-      if (error.message?.includes('RequestNotTransmitted')) {
+      if (errorMessage.includes('RequestNotTransmitted')) {
         console.error('No request submitted. Use: bunx hardhat pricefeed transmit\n');
-      } else if (error.message?.includes('ResultNotFound')) {
+      } else if (errorMessage.includes('ResultNotFound')) {
         console.error('Result not available yet. Check: bunx hardhat pricefeed status\n');
       }
     }
   });
-
-

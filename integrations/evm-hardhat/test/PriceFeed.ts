@@ -8,8 +8,9 @@ describe('PriceFeed Contract', () => {
   async function deployPriceFeedFixture() {
     const [admin] = await ethers.getSigners();
 
-    // A Data Request WASM binary ID (mock value)
-    const oracleProgramId = ethers.ZeroHash;
+    // A Data Request WASM binary ID (mock value - must be non-zero)
+    // TODO: Why was here ethers.ZeroHash;
+    const oracleProgramId = '0x0000000000000000000000000000000000000000000000000000000000000001';
 
     // Deploy MockSedaCore
     const SedaCore = await ethers.getContractFactoryFromArtifact(MockSedaCore);
@@ -42,8 +43,8 @@ describe('PriceFeed Contract', () => {
   it('Should revert if data result is not found', async () => {
     const { priceFeed, core } = await loadFixture(deployPriceFeedFixture);
 
-    // Transmit the data request (but no result set)
-    await priceFeed.transmit(0, 0, 0);
+    // Transmit the data request using the simple mode (but no result set)
+    await priceFeed['transmit(string)']('evaa-protocol');
 
     // latestAnswer should revert due to no data result being set
     await expect(priceFeed.latestAnswer()).to.be.revertedWithCustomError(core, 'ResultNotFound');
@@ -56,8 +57,8 @@ describe('PriceFeed Contract', () => {
   it('Should return the correct latest answer if consensus is reached', async () => {
     const { priceFeed, core } = await loadFixture(deployPriceFeedFixture);
 
-    // Transmit a data request
-    await priceFeed.transmit(0, 0, 0);
+    // Transmit a data request using simple mode
+    await priceFeed['transmit(string)']('evaa-protocol');
     const dataRequestId = await priceFeed.requestId();
 
     // Set a data result with consensus in the contract
@@ -88,8 +89,8 @@ describe('PriceFeed Contract', () => {
   it('Should return latest answer (zero) if consensus is not reached', async () => {
     const { priceFeed, core } = await loadFixture(deployPriceFeedFixture);
 
-    // Transmit a data request
-    await priceFeed.transmit(0, 0, 0);
+    // Transmit a data request using simple mode
+    await priceFeed['transmit(string)']('evaa-protocol');
     const dataRequestId = await priceFeed.requestId();
 
     // Set a data result without consensus (false)
@@ -124,8 +125,8 @@ describe('PriceFeed Contract', () => {
     let dataRequestId = await priceFeed.requestId();
     expect(dataRequestId).to.be.equal(ethers.ZeroHash);
 
-    // Call the transmit function
-    await priceFeed.transmit(0, 0, 0);
+    // Call the transmit function using simple mode
+    await priceFeed['transmit(string)']('evaa-protocol');
 
     // Check that the data request ID is valid and stored correctly
     dataRequestId = await priceFeed.requestId();

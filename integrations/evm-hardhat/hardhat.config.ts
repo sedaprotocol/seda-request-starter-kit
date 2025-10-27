@@ -42,14 +42,14 @@ const config: HardhatUserConfig = {
     },
     customChains: [
       {
-        network: "baseSepolia",
+        network: 'baseSepolia',
         chainId: 84532,
         urls: {
-          apiURL: "https://api.etherscan.io/v2/api?chainid=84532", // TODO: How to provide dynamically.
-          browserURL: "https://sepolia.basescan.org"
-        }
-      }
-    ]
+          apiURL: 'https://api.etherscan.io/v2/api?chainid=84532', // TODO: How to provide dynamically.
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+    ],
   },
 };
 

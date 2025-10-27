@@ -3,9 +3,9 @@ import { getDeployedContract } from './utils';
 
 /**
  * Hardhat task to perform a dry-run simulation of transmit without executing
- * 
+ *
  * Validates request parameters and estimates costs before spending gas.
- * 
+ *
  * @param contract - Optional PriceFeed contract address
  * @param token - Token ID to test (default: "evaa-protocol")
  */
@@ -23,7 +23,7 @@ priceFeedScope
       const priceFeed = await hre.ethers.getContractAt('PriceFeed', priceFeedAddress);
       const [canSubmit, estimatedCost, warnings] = await priceFeed.dryRun(token);
 
-      console.log('\n' + '='.repeat(63));
+      console.log(`\n${'='.repeat(63)}`);
       console.log('DRY-RUN VALIDATION');
       console.log('='.repeat(63));
       console.log(`\nToken:      ${token}`);
@@ -35,16 +35,17 @@ priceFeedScope
         warnings.forEach((warning, i) => console.log(`  ${i + 1}. ${warning}`));
       }
 
-      console.log('\n' + '='.repeat(63));
+      console.log(`\n${'='.repeat(63)}`);
       console.log(canSubmit ? 'Ready to proceed' : 'Resolve issues before transmitting');
-      console.log('='.repeat(63) + '\n');
+      console.log(`${'='.repeat(63)}\n`);
 
       if (canSubmit) {
         console.log(`Next: bunx hardhat pricefeed transmit --network ${hre.network.name} --token ${token}\n`);
       }
-    } catch (error: any) {
-      console.error('\nError:', error.message || error);
-      if (error.message?.includes('dryRun')) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('\nError:', errorMessage);
+      if (errorMessage.includes('dryRun')) {
         console.error('Contract does not support dryRun. Redeploy with latest version.\n');
       }
     }

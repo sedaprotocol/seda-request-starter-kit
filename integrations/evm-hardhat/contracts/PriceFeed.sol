@@ -46,64 +46,54 @@ contract PriceFeed is SedaDefaults {
      * @return warnings Array of warning messages
      * @dev Use this to debug why transmit might fail before spending gas
      */
-    function dryRun(string calldata token) 
-        external 
-        view 
-        returns (
-            bool canSubmit,
-            uint256 estimatedCost,
-            string[] memory warnings
-        ) 
-    {
+    function dryRun(
+        string calldata token
+    ) external view returns (bool canSubmit, uint256 estimatedCost, string[] memory warnings) {
         warnings = new string[](5);
         uint256 warningCount = 0;
-        
+
         // Validate token input
         (bool valid, string memory reason) = validateRequest(bytes(token));
         if (!valid) {
             warnings[warningCount++] = reason;
             canSubmit = false;
-            
+
             // Resize warnings array
             assembly {
                 mstore(warnings, warningCount)
             }
             return (canSubmit, 0, warnings);
         }
-        
+
         // Check Oracle Program ID
         if (ORACLE_PROGRAM_ID == bytes32(0)) {
             warnings[warningCount++] = "Oracle Program ID not configured";
             canSubmit = false;
-            
+
             assembly {
                 mstore(warnings, warningCount)
             }
             return (canSubmit, 0, warnings);
         }
-        
+
         // Estimate cost (gas + fees)
         uint256 gasEstimate = 300000; // Typical gas for transmit
         uint256 gasPrice = tx.gasprice > 0 ? tx.gasprice : 1 gwei;
-        uint256 feeEstimate = calculateRequiredFee(
-            DEFAULT_REQUEST_FEE,
-            DEFAULT_RESULT_FEE,
-            DEFAULT_BATCH_FEE
-        );
+        uint256 feeEstimate = calculateRequiredFee(DEFAULT_REQUEST_FEE, DEFAULT_RESULT_FEE, DEFAULT_BATCH_FEE);
         estimatedCost = (gasEstimate * gasPrice) + feeEstimate;
-        
+
         // Check balance (if msg.sender is not address(0))
         if (msg.sender != address(0) && msg.sender.balance < estimatedCost) {
             warnings[warningCount++] = "Insufficient balance for transaction";
         }
-        
+
         // Check if token string is too long
         if (bytes(token).length > 256) {
             warnings[warningCount++] = "Token ID too long (max 256 chars)";
         }
-        
+
         canSubmit = (warningCount == 0);
-        
+
         // Resize warnings array
         assembly {
             mstore(warnings, warningCount)
@@ -139,7 +129,7 @@ contract PriceFeed is SedaDefaults {
         if (msg.value < requiredFee) {
             revert InsufficientFees(msg.value, requiredFee);
         }
-        
+
         return _transmit(token, requestFee, resultFee, batchFee);
     }
 
@@ -182,7 +172,7 @@ contract PriceFeed is SedaDefaults {
         if (requestId == bytes32(0)) {
             return (false, false);
         }
-        
+
         try SEDA_CORE.getResult(requestId) returns (SedaDataTypes.Result memory result) {
             return (true, result.consensus && result.exitCode == 0);
         } catch {
