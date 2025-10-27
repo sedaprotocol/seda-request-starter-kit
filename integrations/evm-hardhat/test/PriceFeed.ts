@@ -9,7 +9,6 @@ describe('PriceFeed Contract', () => {
     const [admin] = await ethers.getSigners();
 
     // A Data Request WASM binary ID (mock value - must be non-zero)
-    // TODO: Why was here ethers.ZeroHash;
     const oracleProgramId = '0x0000000000000000000000000000000000000000000000000000000000000001';
 
     // Deploy MockSedaCore

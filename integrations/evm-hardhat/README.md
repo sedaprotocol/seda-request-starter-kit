@@ -81,15 +81,40 @@ bunx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_ARG_1> <
 
 ### 4. Interact with Your Contract
 
-**Create a Data Request:**
+#### Basic Workflow
+
+**1. Validate Request (Optional):**
 ```sh
-bunx hardhat pricefeed transmit --network baseSepolia
+bunx hardhat pricefeed dryrun --network baseSepolia --token evaa-protocol
 ```
 
-**Fetch the Latest Result:**
+**2. Submit Request:**
+```sh
+# Simple mode (zero fees)
+bunx hardhat pricefeed transmit --network baseSepolia --token evaa-protocol
+
+# Advanced mode (with custom fees)
+bunx hardhat pricefeed transmit --network baseSepolia --token bitcoin \
+  --request-fee 0.0001 --result-fee 0.0001 --batch-fee 0.0001
+```
+
+**3. Check Status:**
+```sh
+bunx hardhat pricefeed status --network baseSepolia
+```
+
+**4. Fetch Result:**
 ```sh
 bunx hardhat pricefeed latest --network baseSepolia
 ```
+
+#### Available Commands
+
+- `dryrun` - Validate request before submission (no gas cost)
+- `transmit` - Submit a data request (simple or advanced mode)
+- `status` - Check if result is ready (non-reverting)
+- `latest` - Get the price result (reverts if not ready)
+- `fullresult` - View complete result details for debugging
 
 ## Project Structure
 
@@ -116,8 +141,11 @@ The PriceFeed contract is a **destination contract** that:
 
 1. **Deploy Oracle Program** → Get `ORACLE_PROGRAM_ID`
 2. **Deploy PriceFeed Contract** → Uses the `ORACLE_PROGRAM_ID`
-3. **Call `transmit()`** → Creates a data request on SEDA network
-4. **Call `latestAnswer()`** → Retrieves the processed result
+3. **Call `dryrun()`** → Validate request parameters (optional)
+4. **Call `transmit()`** → Creates a data request on SEDA network
+5. **Call `status()`** → Check if result is ready
+6. **Call `latestAnswer()`** → Retrieves the processed result
+7. **Call `fullResult()`** → Retrieves the processed results and presents it in full 
 
 ## Testing
 

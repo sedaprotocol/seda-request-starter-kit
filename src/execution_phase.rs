@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, http_fetch, log, Process, HttpFetchOptions};
+use seda_sdk_rs::{elog, http_fetch, log, HttpFetchOptions, Process};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -18,11 +18,11 @@ struct CoinGeckoSimplePrice {
 
 /**
  * Executes the data request phase within the SEDA network.
- * 
+ *
  * Supported input formats:
  * - "binance:ETHUSDC" or "binance:BTCUSDT" - Fetches from Binance API (no separator needed)
  * - Any other input - Fetches from CoinGecko Simple Price API (e.g., "evaa-protocol", "bitcoin")
- * 
+ *
  * Examples:
  * - "binance:ETHUSDC" -> Binance
  * - "evaa-protocol" -> CoinGecko
@@ -78,7 +78,7 @@ fn fetch_binance_price(symbol: &str) -> Result<f32> {
 /**
  * Fetches price from CoinGecko Simple Price API
  * Input: Token ID as listed on CoinGecko (e.g., "evaa-protocol", "bitcoin", "ethereum")
- * 
+ *
  * Uses the simple/price endpoint which returns: {"token-id":{"usd":123.45}}
  */
 fn fetch_coingecko_price(token_input: &str) -> Result<f32> {
@@ -90,7 +90,7 @@ fn fetch_coingecko_price(token_input: &str) -> Result<f32> {
     } else {
         (token_input, None)
     };
-    
+
     log!("Fetching CoinGecko price for: {}", token_id);
 
     // Build URL and headers based on whether we have Pro API key
@@ -130,16 +130,15 @@ fn fetch_coingecko_price(token_input: &str) -> Result<f32> {
 
     // Parse response: {"token-id":{"usd":123.45}}
     let response_json: serde_json::Value = serde_json::from_slice(&response.bytes)?;
-    
+
     // Get the token object
-    let token_data = response_json.get(token_id)
-        .ok_or_else(|| {
-            elog!("Token '{}' not found in CoinGecko response", token_id);
-            anyhow::anyhow!("Token not found")
-        })?;
-    
+    let token_data = response_json.get(token_id).ok_or_else(|| {
+        elog!("Token '{}' not found in CoinGecko response", token_id);
+        anyhow::anyhow!("Token not found")
+    })?;
+
     // Get the USD price
     let price_data: CoinGeckoSimplePrice = serde_json::from_value(token_data.clone())?;
-    
+
     Ok(price_data.usd as f32)
 }
