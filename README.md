@@ -74,6 +74,12 @@ These components and utilities serve as a foundation for developing your Oracle 
 
 You can upload Oracle Programs and interact with the SEDA network using the CLI tools provided by `@seda-protocol/dev-tools`.
 
+> [!TIP]
+> The easiest way to get a mnemonic is to install [Keplr Wallet](https://www.keplr.app/) and create a new account.
+
+> [!TIP]
+> Need testnet tokens? Get them from the [SEDA Testnet Faucet](https://testnet.explorer.seda.xyz/faucet).
+
 ### Uploading an Oracle Program
 
 To upload an Oracle Program binary, run:
@@ -121,9 +127,6 @@ curl -L -X POST 'https://fast-api.testnet.seda.xyz/execute?encoding=utf8' \
 ```
 
 ## Run on SEDA Core
-
-> [!TIP]
-> Need testnet tokens? Get them from the [SEDA Testnet Faucet](https://testnet.explorer.seda.xyz/faucet).
 
 ### Submitting a Data Request
 
