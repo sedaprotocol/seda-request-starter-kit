@@ -102,6 +102,29 @@ Upload an Oracle Program (requires `RPC_SEDA_ENDPOINT` and `MNEMONIC` environmen
 bunx seda-sdk oracle-program upload PATH_TO_BUILD
 ```
 
+## Run on SEDA Fast
+
+SEDA Fast provides a low-latency API for submitting Data Requests and receiving results without managing on-chain transactions. Perfect for applications that need quick oracle data without the complexity of direct chain interaction.
+
+To get a SEDA Fast API key, visit [seda.xyz](https://seda.xyz).
+
+### Example: Submit a Data Request via curl
+
+```sh
+curl -L -X POST 'https://fast-api.testnet.seda.xyz/execute?encoding=utf8' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{
+    "execProgramId": "YOUR_ORACLE_PROGRAM_ID",
+    "execInputs": "BTC-USDT"
+  }'
+```
+
+## Run on SEDA Core
+
+> [!TIP]
+> Need testnet tokens? Get them from the [SEDA Testnet Faucet](https://testnet.explorer.seda.xyz/faucet).
+
 ### Submitting a Data Request
 
 `@seda-protocol/dev-tools` exposes functions that make it easy to create scripts that submit Data Requests to the SEDA network and await the result. The `scripts` directory shows an example.
