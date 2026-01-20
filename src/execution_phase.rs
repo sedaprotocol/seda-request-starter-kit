@@ -46,8 +46,6 @@ pub fn execution_phase() -> Result<()> {
 
         // Report the failure to the SEDA network with an error code of 1.
         Process::error("Error while fetching price feed".as_bytes());
-
-        return Ok(());
     }
 
     // Parse the API response as defined earlier.
@@ -62,6 +60,4 @@ pub fn execution_phase() -> Result<()> {
 
     // Report the successful result back to the SEDA network.
     Process::success(&result.to_le_bytes());
-
-    Ok(())
 }

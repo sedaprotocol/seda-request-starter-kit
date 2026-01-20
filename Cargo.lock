@@ -135,8 +135,9 @@ dependencies = [
 
 [[package]]
 name = "seda-sdk-rs"
-version = "1.1.0"
-source = "git+https://github.com/sedaprotocol/seda-sdk?tag=rs-sdk%2Fv1.1.0#9cee65245f0d07fc829557fb960fb70365f918a6"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cb6dc22fc6624eae92c46ede22454040edd78bc5e423ed39370f6f0604c8367"
 dependencies = [
  "anyhow",
  "const-hex",

@@ -36,7 +36,6 @@ pub fn tally_phase() -> Result<()> {
     if prices.is_empty() {
         // If no valid prices were revealed, report an error indicating no consensus.
         Process::error("No consensus among revealed results".as_bytes());
-        return Ok(());
     }
 
     // If there are valid prices revealed, calculate the median price from price reports.
@@ -45,8 +44,6 @@ pub fn tally_phase() -> Result<()> {
     // Report the successful result in the tally phase, encoding the result as bytes.
     // Encoding result with big endian to decode from EVM contracts.
     Process::success(&final_price.to_be_bytes());
-
-    Ok(())
 }
 
 fn median(mut nums: Vec<u128>) -> u128 {
